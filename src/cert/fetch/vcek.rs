@@ -3,6 +3,7 @@
 use super::*;
 
 use std::{
+    env,
     fs::{create_dir_all, OpenOptions},
     io::Write,
     path::PathBuf,
@@ -26,7 +27,10 @@ pub struct Vcek {
 }
 
 pub fn cmd(vcek: Vcek) -> Result<()> {
-    let url = vcek_url()?;
+    let url = match env::var("VCEKURL") {
+        Ok(url) => url,
+        Err(_) => vcek_url()?,
+    };
     let cert = fetch(&url).context(format!("unable to fetch VCEK from {}", url))?;
 
     let (vcek_name, vcek_bytes) = match vcek.encoding_fmt {
